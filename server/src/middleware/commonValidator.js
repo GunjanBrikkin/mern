@@ -9,5 +9,9 @@ const updateTimeValidate = [
     body("id").notEmpty().withMessage("Please pass the id !!").isMongoId().withMessage("Pass the valide 12 digit mongo ID !!") // front developer error
 ];
 
+const listByIdMiddleWare = [
+    body("_id").notEmpty().withMessage("Please provide _id").isMongoId().withMessage("Pass the valide 12 digit mongo ID !!")
+]
 
-module.exports = { creationTimeValidate, updateTimeValidate };
+
+module.exports = { creationTimeValidate, updateTimeValidate, listByIdMiddleWare };

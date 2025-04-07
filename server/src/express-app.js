@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 const createModel = require("./Model/domodel");
-const { creationTimeValidate, updateTimeValidate } = require("../src/middleware/commonValidator");
+const { creationTimeValidate, updateTimeValidate, listByIdMiddleWare } = require("../src/middleware/commonValidator");
 const { userAuth, generateWebToken } = require("../src/utils/index")
 
 module.exports = async (app) => {
@@ -94,6 +94,41 @@ module.exports = async (app) => {
             return res.status(200).json({ "token": token });
         } catch (error) {
             console.log("hey this got an error !! please check it , ", error);
+        }
+    });
+
+    app.post("/list/id", [userAuth, listByIdMiddleWare], async (req, res, next) => {
+        try {
+
+            const error = await validationResult(req);
+
+            if (!error.isEmpty()) {
+                return res.status(400).json(error.array())
+            }
+
+            const formdata = req.body;
+
+            const query = [];
+
+            const matchingStage = {
+                $match: {
+                    _id: formdata._id
+                }
+            };
+
+            query.push(matchingStage);
+
+            const getTheData = await createModel.aggregate(query);
+
+            if (getTheData) {
+                res.status(200).json({ data: `got the data to this id`, data: getTheData })
+            }
+            else {
+                res.status(400).json({ data: "not found record on this id ! please check again !!" })
+            }
+
+        } catch (error) {
+            console.log("there is an error while listing the data specifically in the id filter in api layer , and the error is ===>", error);
         }
     })
 }
