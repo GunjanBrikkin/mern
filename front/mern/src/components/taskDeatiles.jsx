@@ -5,6 +5,7 @@ const Details = ({ onCreate }) => {
   const [task, setTask] = useState("");
   const [userName, setUserName] = useState("");
   const [responseData, setResponseData] = useState(null);
+  const [status, setStatus] = useState("");
 
   const handleClick = async (e) => {
     e.preventDefault();

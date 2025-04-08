@@ -11,7 +11,6 @@ function App() {
       <Header />
       <TaskDeatiles
         onCreate={() => {
-          console.log("onCreate triggered 🚀");
           setRefreshList((pre) => !pre); // here we also write refreshList in place of pre
         }}
       />

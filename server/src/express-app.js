@@ -1,7 +1,8 @@
 const { validationResult } = require("express-validator");
 const createModel = require("./Model/domodel");
 const { creationTimeValidate, updateTimeValidate, listByIdMiddleWare } = require("../src/middleware/commonValidator");
-const { userAuth, generateWebToken } = require("../src/utils/index")
+const { userAuth, generateWebToken } = require("../src/utils/index");
+const { ObjectId } = require("mongodb")
 
 module.exports = async (app) => {
     app.post("/", (req, res) => {
@@ -60,10 +61,11 @@ module.exports = async (app) => {
             const id = req.body.id;
 
             const findInTheDocument = await createModel.findOneAndUpdate({ _id: id }, { $set: formdata }, { new: true });
+            console.log("findInTheDocument", findInTheDocument)
             if (findInTheDocument) {
-                return res.status(200).json({ findInTheDocument })
+                return res.status(200).json({ updatedData: findInTheDocument })
             } else {
-                return res.status(200).json({ findInTheDocument })
+                return res.status(400).json({ findInTheDocument })
             }
 
         } catch (error) {
@@ -112,7 +114,7 @@ module.exports = async (app) => {
 
             const matchingStage = {
                 $match: {
-                    _id: formdata._id
+                    _id: new ObjectId(formdata._id)
                 }
             };
 
@@ -120,7 +122,7 @@ module.exports = async (app) => {
 
             const getTheData = await createModel.aggregate(query);
 
-            if (getTheData) {
+            if (getTheData.length != 0) {
                 res.status(200).json({ data: `got the data to this id`, data: getTheData })
             }
             else {
@@ -130,5 +132,35 @@ module.exports = async (app) => {
         } catch (error) {
             console.log("there is an error while listing the data specifically in the id filter in api layer , and the error is ===>", error);
         }
-    })
+    });
+
+    app.delete("/delete", [userAuth, updateTimeValidate], async (req, res) => {
+        try {
+
+            const error = await validationResult(req);
+
+            if (!error.isEmpty()) {
+                return res.status(400).json(error.array())
+            }
+
+            const formdata = req.body;
+
+            const id = formdata.id;
+
+            console.log("id is ", id);
+
+            const deletingId = await createModel.findByIdAndDelete({ _id: id })
+
+            if (deletingId) {
+                res.status(200).json({ data: "data deleted successfully" })
+            } else {
+                // this is if deleteingId is null
+
+                res.status(400).json({ message: "data is not deleted ! please check again , it may be already deleted" })
+            }
+
+        } catch (error) {
+            console.log("error while deleting the record and the error is==>>", error)
+        }
+    });
 }

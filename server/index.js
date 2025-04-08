@@ -14,7 +14,8 @@ app.use(bodyParser.json());
 const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = [
-            "http://localhost:5000/list",
+            "http://localhost:3000",
+            "http://localhost:5000",
         ];
 
         // Allow localhost origins dynamically for Flutter app development
